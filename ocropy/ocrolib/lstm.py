@@ -369,7 +369,7 @@ class LSTM(Network):
         ni,ns,na = self.dims
         assert len(xs[0])==ni
         n = len(xs)
-        if n>len(self.gi): 
+        if n>len(self.gi):
 	    raise ocrolib.RecognitionError("input too large for LSTM model")
         self.last_n = n
         self.reset(n)
@@ -400,7 +400,7 @@ class LSTM(Network):
     def backward(self,deltas):
         """Perform backward propagation of deltas."""
         n = len(deltas)
-        if n>len(self.gi): 
+        if n>len(self.gi):
 	    raise ocrolib.RecognitionError("input too large")
         assert n==self.last_n
         ni,ns,na = self.dims
@@ -587,10 +587,18 @@ from scipy.ndimage import measurements,filters
 def translate_back(outputs,threshold=0.7):
     """Translate back. Thresholds on class 0, then assigns
     the maximum class to each region."""
+    # BGR 
+    # here I tried changing threshold to 0.4 to make it more liberal
+    # but as the training set increased in size, it gave more uc erroneous
+    # doubles
+    # for a while I stipulated 0.5, which might be a better compromise
     labels,n = measurements.label(outputs[:,0]<threshold)
     mask = tile(labels.reshape(-1,1),(1,outputs.shape[1]))
     maxima = measurements.maximum_position(outputs,mask,arange(1,amax(mask)+1))
-    return [c for (r,c) in maxima]
+    #print "maxima:"
+    #for (r,c) in maxima:
+    #    print r, c
+    return maxima
 
 def log_mul(x,y):
     "Perform multiplication in the log domain (i.e., addition)."

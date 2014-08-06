@@ -242,9 +242,13 @@ for trial in range(start,args.ntrain):
     gta = "".join(codec.decode(acs))
     if not args.quiet:
         print "%d %.2f %s"%(trial,network.error,line.shape),fname
-        print "   TRU:",repr(transcript)
-        print "   ALN:",repr(gta[:len(transcript)+5])
-        print "   OUT:",repr(pred[:len(transcript)+5])
+        #replaced this form:
+        #print "   TRU:",repr(transcript)
+        #in the following three lines
+        #because it made it hard to read unicode ancient Greek, e.g.
+        print "   TRU:",transcript
+        print "   ALN:",gta[:len(transcript)+5]
+        print "   OUT:",pred[:len(transcript)+5]
 
     pred = re.sub(' ','_',pred)
     pred = re.sub('[^A-Za-z0-9,.;:\'"_ ()-]+','#',pred)

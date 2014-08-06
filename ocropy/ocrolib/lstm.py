@@ -584,7 +584,7 @@ def translate_back0(outputs,threshold=0.25):
 
 from scipy.ndimage import measurements,filters
 
-def translate_back(outputs,threshold=0.7):
+def translate_back(outputs,threshold=0.5):
     """Translate back. Thresholds on class 0, then assigns
     the maximum class to each region."""
     # BGR 

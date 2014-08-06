@@ -18,7 +18,6 @@ import ocrolib
 from ocrolib import lstm
 
 parser = argparse.ArgumentParser("apply an RNN recognizer")
-
 # line dewarping (usually contained in model)
 parser.add_argument("-e","--lineest",default=None,
                     help="line dewarping model (overrides recognizer)")
@@ -96,6 +95,7 @@ if args.height>0:
 # process one file
 
 def process1(arg):
+    scale = 0
     (trial,fname) = arg
     base,_ = ocrolib.allsplitext(fname)
     line = ocrolib.read_image_gray(fname)
@@ -106,14 +106,32 @@ def process1(arg):
         assert "dew.png" not in fname,"don't dewarp dewarped images"
         temp = amax(line)-line
         temp = temp*1.0/amax(temp)
+        print "before: " + str(len(line))
+        print "before x: " + str(len(line[0]))
+	before_x = len(line[0])
         lnorm.measure(temp)
         line = lnorm.normalize(line,cval=amax(line))
+        print "after: " + str(len(line))
+        print "after x: " + str(len(line[0]))
+	scale = before_x / float(len(line[0]))
+	print "scale: " + str(scale)
     else:
         assert "dew.png" in fname,"only apply to dewarped images"
 
     line = lstm.prepare_line(line,args.pad)
-    pred = network.predictString(line)
-
+    sequence = network.predictSequence(line)
+    print "sequence: ", sequence
+    print "sequence len: ", len(sequence)
+    sequence_char_only = [c for (r,c) in sequence]
+    sequence_x = [int(x*scale)  for (x,c) in sequence if c != 0]
+    sequence_x_csv = ""
+    for x in sequence_x:
+        sequence_x_csv += str(x) + ","
+    if (len(sequence_x_csv) > 0):
+        sequence_x_csv = sequence_x_csv[:-1]
+    pred = network.l2s(sequence_char_only)#pred = network.predictString(line)
+    print "sequence xs: ", sequence_x 
+    print "pred len: ", len(pred)
     if not args.nonormalize:
         pred = ocrolib.normalize_text(pred)
 
@@ -137,6 +155,7 @@ def process1(arg):
     if not args.quiet:
         print fname,":",pred
     ocrolib.write_text(base+".txt",pred)
+    ocrolib.write_text(base+".csv",sequence_x_csv)
 
     if args.show>0 or args.save is not None:
         ion()

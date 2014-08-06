@@ -125,12 +125,50 @@ for arg in args.files:
                 continue
 
             text = ocrolib.read_text(lbase+".txt")
-
+            if text == '':
+                E("note: line %s produced output, but it is empty"%(lbase+".bin.png"))
+                continue
+            layout = ocrolib.read_text(lbase+".csv")
+            layout = layout.split(",")
+            layout = [int(x) for x in layout]
+            print layout
             text = re.sub(r'\&','\&amp;',text)
             text = re.sub(r'\<','\&lt;',text)
 
             # accumulate information for each line here
-
+            combo_info = zip(layout,text)
+            built_word = ''
+            line_text = ''
+            built_word_start_x = 0
+            built_word_end_x = 0
+            previous_x = 0
+            offset = 16
+            for (x,char) in combo_info:
+                if char == ' ':
+                    built_word_start_x = built_word_end_x
+                    built_word_end_x = x
+                    if line_text == '':
+                        initial_offset = 0
+                    else:
+                        initial_offset = offset 			
+                    line_text += "<span class='ocr_word' title='bbox " + str(built_word_start_x + x0 - initial_offset) + ' ' + str(y0+5) + ' ' + str(previous_x + x0 ) + " " + str(y1-5) + "'>" + built_word + '</span> '
+                    built_word_start_x = built_word_end_x
+                    built_word = ''
+                else:
+                    print "new char: '" + char + "'"
+                    print "current line_text: '" + line_text + "'"
+                    built_word += char
+                    previous_x = x
+            if line_text == u'':
+                initial_offset = 0
+            else:
+                initial_offset = offset
+            print "line text at end: '"+ line_text + "'"
+            new_x1 =  (previous_x + x0 )
+            if new_x1 > x1:
+                new_x1 = x1 
+            line_text += "<span class='ocr_word' title='bbox " + str(built_word_end_x + x0 - initial_offset) + ' ' + str(y0+5) + ' ' + str(new_x1) + " " + str(y1-5) + "'>" + built_word + '</span> '        
+            print line_text
             style = ""
             info = ""
 
@@ -153,7 +191,7 @@ for arg in args.files:
 
             PN("<span")
             if style!="": PN(" style='"+style+"'")
-            PN(" class='ocr_line' title='%s'>"%info,text,"</span>")
+            PN(" class='ocr_line' title='%s'>"%info,line_text,"</span>")
             if not args.nobreaks: P("<br />")
             else: P()
 

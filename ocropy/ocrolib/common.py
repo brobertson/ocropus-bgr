@@ -360,8 +360,7 @@ class RegionExtractor:
         """Return the bounding box in math coordinates
         (row0,col0,row1,col1)."""
         h = self.image.shape[0]
-        (y0,x0,y1,x1) = self.bbox(i)
-        return (h-y1-1,x0,h-y0-1,x1)
+	return self.bbox(i)
     def length(self):
         """Return the number of components."""
         return len(self.objects)

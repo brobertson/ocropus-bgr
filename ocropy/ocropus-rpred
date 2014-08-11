@@ -132,8 +132,8 @@ def process1(arg):
     pred = network.l2s(sequence_char_only)#pred = network.predictString(line)
     print "sequence xs: ", sequence_x 
     print "pred len: ", len(pred)
-    if not args.nonormalize:
-        pred = ocrolib.normalize_text(pred)
+    #if not args.nonormalize:
+    #    pred = ocrolib.normalize_text(pred)
 
     if args.estrate:
         try:

@@ -161,7 +161,8 @@ def compute_colseps_conv(binary,scale=1.0):
     # select only the biggest column separators
     # this is usually turned on, but I find more intermediate column seps in Migne get found with
     # it off.
-    #seps = morph.select_regions(seps,sl.dim0,min=args.csminheight*scale,nbest=args.maxcolseps+1)
+    #print "minheight: ", args.csminheight*scale
+    seps = morph.select_regions(seps,sl.dim0,min=args.csminheight*scale,nbest=args.maxcolseps+1)
     DSAVE("4seps",seps)
     return seps
 
